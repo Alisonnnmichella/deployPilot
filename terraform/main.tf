@@ -37,7 +37,7 @@ resource "azurerm_mysql_flexible_server" "main" {
   administrator_password = random_password.password.result
 
   sku_name = "B_Standard_B1ms"
-  version  = "5.7"
+  version  = "8"
 
   storage {
     size_gb           = 20
