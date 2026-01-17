@@ -45,7 +45,7 @@ resource "azurerm_mysql_flexible_server" "main" {
   }
   backup_retention_days     = 7
   geo_redundant_backup_enabled = false
-  public_network_access = "Enabled"
+  public_network_access_enabled = true
 
 
   tags = {
@@ -87,7 +87,7 @@ resource "azurerm_app_service" "main" {
   name                = var.application_name
   location            = azurerm_resource_group.main.location
   resource_group_name = azurerm_resource_group.main.name
-  app_service_plan_id = azurerm_app_service_plan.main.id
+  app_service_plan_id = azurerm_service_plan.main.id
   https_only          = true
 
   site_config {
