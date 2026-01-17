@@ -28,43 +28,58 @@ resource "random_password" "password" {
 }
 
 # This creates a MySQL server
-resource "azurerm_mysql_server" "main" {
-  name                              = "${azurerm_resource_group.main.name}-mysql-server"
+resource "azurerm_mysql_flexible_server" "main" {
+  name                              = "${azurerm_resource_group.main.name}-mysql-flexible"
   location                          = azurerm_resource_group.main.location
   resource_group_name               = azurerm_resource_group.main.name
 
   administrator_login               = "petclinic"
   administrator_login_password      = random_password.password.result
 
-  sku_name   = "B_Gen5_1"
-  storage_mb = 5120
-  version    = "5.7"
-  auto_grow_enabled                 = true
-  backup_retention_days             = 7
-  geo_redundant_backup_enabled      = false
-  infrastructure_encryption_enabled = false
-  public_network_access_enabled     = true
-  ssl_enforcement_enabled           = true
-  ssl_minimal_tls_version_enforced  = "TLS1_2"
+  sku_name = "B_Standard_B1ms"   # Básico, similar al que usabas
+  version  = "5.7"
+
+  storage {
+    size_gb           = 20
+    auto_grow_enabled = true
+  }
+
+  backup {
+    backup_retention_days     = 7
+    geo_redundant_backup_enabled = false
+  }
+
+  high_availability {
+    mode = "Disabled"
+  }
+
+  network {
+    public_network_access_enabled = true
+  }
+
+  tags = {
+    Terraform = "true"
+  }
+
 }
 
-# This is the database that our application will use
-resource "azurerm_mysql_database" "main" {
-  name                = "${azurerm_resource_group.main.name}_mysql_db"
-  resource_group_name = azurerm_resource_group.main.name
-  server_name         = azurerm_mysql_server.main.name
-  charset             = "utf8"
-  collation           = "utf8_unicode_ci"
+# Base de datos en Flexible Server
+resource "azurerm_mysql_flexible_database" "main" {
+  name      = "${azurerm_resource_group.main.name}_mysql_db"
+  server_id = azurerm_mysql_flexible_server.main.id
+  charset   = "utf8"
+  collation = "utf8_unicode_ci"
 }
+
 
 # This rule is to enable the 'Allow access to Azure services' checkbox
-resource "azurerm_mysql_firewall_rule" "main" {
-  name                = "${azurerm_resource_group.main.name}-mysql-firewall"
-  resource_group_name = azurerm_resource_group.main.name
-  server_name         = azurerm_mysql_server.main.name
-  start_ip_address    = "0.0.0.0"
-  end_ip_address      = "0.0.0.0"
+resource "azurerm_mysql_flexible_server_firewall_rule" "main" {
+  name      = "${azurerm_resource_group.main.name}-mysql-firewall"
+  server_id = azurerm_mysql_flexible_server.main.id
+  start_ip_address = "0.0.0.0"
+  end_ip_address   = "0.0.0.0"
 }
+
 
 # This creates the plan that the service use
 resource "azurerm_app_service_plan" "main" {
