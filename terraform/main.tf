@@ -45,7 +45,8 @@ resource "azurerm_mysql_flexible_server" "main" {
   }
   backup_retention_days     = 7
   geo_redundant_backup_enabled = false
-  public_network_access_enabled = true
+  public_network_access = "Enabled"
+
 
   tags = {
     Terraform = "true"
