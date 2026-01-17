@@ -3,6 +3,7 @@ variable "resource_group" {
   default = "azurepilotdeploy"
 }
 
+
 variable "application_name" {
   description = "The Spring Boot application name"
   default     = "pilot"
