@@ -29,43 +29,31 @@ resource "random_password" "password" {
 
 # This creates a MySQL server
 resource "azurerm_mysql_flexible_server" "main" {
-  name                              = "${azurerm_resource_group.main.name}-mysql-flexible"
-  location                          = azurerm_resource_group.main.location
-  resource_group_name               = azurerm_resource_group.main.name
+  name                = "${azurerm_resource_group.main.name}-mysql-flexible"
+  resource_group_name = azurerm_resource_group.main.name
+  location            = azurerm_resource_group.main.location
 
-  administrator_login               = "petclinic"
+  administrator_login    = "petclinic"
   administrator_password = random_password.password.result
-  sku_name = "B_Standard_B1ms"   # Básico, similar al que usabas
+
+  sku_name = "B_Standard_B1ms"
   version  = "5.7"
 
-  storage {
-    size_gb           = 20
-    auto_grow_enabled = true
-  }
-
-  backup {
-    backup_retention_days     = 7
-    geo_redundant_backup_enabled = false
-  }
-
-  high_availability {
-    mode = "Disabled"
-  }
-
-  network {
-    public_network_access_enabled = true
-  }
+  storage_mb = 20480  # 20 GB
+  backup_retention_days     = 7
+  geo_redundant_backup_enabled = false
+  public_network_access_enabled = true
 
   tags = {
     Terraform = "true"
   }
-
 }
 
 # Base de datos en Flexible Server
 resource "azurerm_mysql_flexible_database" "main" {
   name      = "${azurerm_resource_group.main.name}_mysql_db"
-  server_id = azurerm_mysql_flexible_server.main.id
+  resource_group_name = azurerm_resource_group.main.name
+  server_name         = azurerm_mysql_flexible_server.main.name
   charset   = "utf8"
   collation = "utf8_unicode_ci"
 }
@@ -74,24 +62,20 @@ resource "azurerm_mysql_flexible_database" "main" {
 # This rule is to enable the 'Allow access to Azure services' checkbox
 resource "azurerm_mysql_flexible_server_firewall_rule" "main" {
   name      = "${azurerm_resource_group.main.name}-mysql-firewall"
-  server_id = azurerm_mysql_flexible_server.main.id
+  resource_group_name = azurerm_resource_group.main.name
+  server_name         = azurerm_mysql_flexible_server.main.name
   start_ip_address = "0.0.0.0"
   end_ip_address   = "0.0.0.0"
 }
 
 
 # This creates the plan that the service use
-resource "azurerm_app_service_plan" "main" {
+resource "azurerm_service_plan" "main" {
   name                = "${var.application_name}-plan"
   location            = azurerm_resource_group.main.location
   resource_group_name = azurerm_resource_group.main.name
-  kind                = "Linux"
-  reserved            = true
-
-  sku {
-    tier = "PremiumV2"
-    size = "P1v2"
-  }
+  os_type             = "Linux"
+  sku_name            = "P1v2"
 }
 
 # This creates the service definition
