@@ -39,7 +39,10 @@ resource "azurerm_mysql_flexible_server" "main" {
   sku_name = "B_Standard_B1ms"
   version  = "5.7"
 
-  storage_mb = 20480  # 20 GB
+  storage {
+    size_gb           = 20
+    auto_grow_enabled = true
+  }
   backup_retention_days     = 7
   geo_redundant_backup_enabled = false
   public_network_access_enabled = true
