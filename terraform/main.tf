@@ -34,8 +34,7 @@ resource "azurerm_mysql_flexible_server" "main" {
   resource_group_name               = azurerm_resource_group.main.name
 
   administrator_login               = "petclinic"
-  administrator_login_password      = random_password.password.result
-
+  administrator_password = random_password.password.result
   sku_name = "B_Standard_B1ms"   # Básico, similar al que usabas
   version  = "5.7"
 
