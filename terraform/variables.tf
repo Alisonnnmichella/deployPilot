@@ -6,7 +6,7 @@ variable "resource_group" {
 
 variable "application_name" {
   description = "The Spring Boot application name"
-  default     = "pilot"
+  default     = "pilot-alison-dev"
 }
 
 variable "location" {
