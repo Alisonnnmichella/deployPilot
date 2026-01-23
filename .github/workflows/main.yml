@@ -35,10 +35,7 @@ jobs:
         run: terraform init -backend=false
 
       - name: Terraform Apply bootstrap
-        run: terraform apply -auto-approve \
-          -target=azurerm_resource_group.main \
-          -target=azurerm_storage_account.tfstate \
-          -target=azurerm_storage_container.tfstate
+        run: terraform apply -auto-approve -target=azurerm_resource_group.main -target=azurerm_storage_account.tfstate -target=azurerm_storage_container.tfstate
 
   # Job 2: Main
   main:
