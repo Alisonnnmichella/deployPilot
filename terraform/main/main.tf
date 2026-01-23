@@ -63,38 +63,44 @@ resource "azurerm_service_plan" "main" {
   sku_name            = "B1"
 }
 
-# This creates the service definition
 resource "azurerm_linux_web_app" "main" {
   name                = var.application_name
   location            = data.azurerm_resource_group.main.location
   resource_group_name = data.azurerm_resource_group.main.name
-  service_plan_id      = azurerm_service_plan.main.id
+  service_plan_id     = azurerm_service_plan.main.id
   https_only          = true
 
   site_config {
-    always_on = true
-  }
-
-  application_stack {
+    always_on    = true
     java_version = "8"
   }
 
   app_settings = {
     "WEBSITES_ENABLE_APP_SERVICE_STORAGE" = "false"
-
-    # These are app specific environment variables
-    "SPRING_PROFILES_ACTIVE"     = "mysql"
-    "SPRING_DATASOURCE_URL"      = "jdbc:mysql://${azurerm_mysql_flexible_server.main.fqdn}:3306/${azurerm_mysql_flexible_database.main.name}?useUnicode=true&characterEncoding=utf8&useSSL=true&useLegacyDatetimeCode=false&serverTimezone=UTC"
-    "SPRING_DATASOURCE_USERNAME" = "${azurerm_mysql_flexible_server.main.administrator_login}@${azurerm_mysql_flexible_server.main.name}"
-    "SPRING_DATASOURCE_PASSWORD" = azurerm_mysql_flexible_server.main.administrator_password
+    "SPRING_PROFILES_ACTIVE"              = "mysql"
+    "SPRING_DATASOURCE_URL"               = "jdbc:mysql://${azurerm_mysql_flexible_server.main.fqdn}:3306/${azurerm_mysql_flexible_database.main.name}?useUnicode=true&characterEncoding=utf8&useSSL=true&useLegacyDatetimeCode=false&serverTimezone=UTC"
+    "SPRING_DATASOURCE_USERNAME"          = "${azurerm_mysql_flexible_server.main.administrator_login}@${azurerm_mysql_flexible_server.main.name}"
+    "SPRING_DATASOURCE_PASSWORD"          = azurerm_mysql_flexible_server.main.administrator_password
   }
 }
 
-
-
-resource "azurerm_linux_web_app" "staging" {
+resource "azurerm_linux_web_app_slot" "staging" {
   name                = "staging"
+  app_service_id      = azurerm_linux_web_app.main.id
   resource_group_name = data.azurerm_resource_group.main.name
   location            = data.azurerm_resource_group.main.location
-  service_plan_id = azurerm_service_plan.main.id
+  service_plan_id     = azurerm_service_plan.main.id
+
+  site_config {
+    always_on    = true
+    java_version = "8"
+  }
+
+  app_settings = {
+    "WEBSITES_ENABLE_APP_SERVICE_STORAGE" = "false"
+    "SPRING_PROFILES_ACTIVE"              = "mysql"
+    "SPRING_DATASOURCE_URL"               = "jdbc:mysql://${azurerm_mysql_flexible_server.main.fqdn}:3306/${azurerm_mysql_flexible_database.main.name}?useUnicode=true&characterEncoding=utf8&useSSL=true&useLegacyDatetimeCode=false&serverTimezone=UTC"
+    "SPRING_DATASOURCE_USERNAME"          = "${azurerm_mysql_flexible_server.main.administrator_login}@${azurerm_mysql_flexible_server.main.name}"
+    "SPRING_DATASOURCE_PASSWORD"          = azurerm_mysql_flexible_server.main.administrator_password
+  }
 }
