@@ -8,6 +8,7 @@ resource "random_password" "password" {
   override_special = "_%@"
 }
 
+
 # This creates a MySQL server
 resource "azurerm_mysql_flexible_server" "main" {
   name                = "${azurerm_resource_group.main.name}-mysql-flexible"
