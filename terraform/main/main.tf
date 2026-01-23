@@ -8,15 +8,6 @@ resource "random_password" "password" {
   override_special = "_%@"
 }
 
-data "terraform_remote_state" "bootstrap" {
-  backend = "azurerm"
-  config = {
-    resource_group_name  = "azurepilotdeploy"
-    storage_account_name = "pilotstateaccount"
-    container_name       = "tfstate"
-    key                  = "bootstrap.tfstate"
-  }
-}
 
 # This creates a MySQL server
 resource "azurerm_mysql_flexible_server" "main" {
@@ -55,7 +46,7 @@ resource "azurerm_mysql_flexible_database" "main" {
 
 # This rule is to enable the 'Allow access to Azure services' checkbox
 resource "azurerm_mysql_flexible_server_firewall_rule" "main" {
-  name      = "${azurerm_resource_group.main.name}-mysql-firewall"
+  name      = "${data.azurerm_resource_group.main.name}-mysql-firewall"
   resource_group_name = data.azurerm_resource_group.main.name
   server_name         = azurerm_mysql_flexible_server.main.name
   start_ip_address = "0.0.0.0"
