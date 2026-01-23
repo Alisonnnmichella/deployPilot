@@ -4,40 +4,67 @@ on:
   push:
     branches: [ main ]
     paths:
-    - 'terraform/**'
+      - 'terraform/**'
   pull_request:
     branches: [ main ]
     paths:
-    - 'terraform/**'
-
+      - 'terraform/**'
   workflow_dispatch:
-jobs:
-  terraform:
-    runs-on: ubuntu-latest
-    permissions: 
-      id-token: write # required for OIDC contents: read
 
+jobs:
+  # Job 1: Bootstrap
+  bootstrap:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
     defaults:
       run:
         working-directory: ./terraform
     steps:
-      - uses: actions/checkout@v2
-      
-      - name: Login to Azure 
-        uses: azure/login@v2 
-        with: 
-          client-id: ${{ secrets.AZURE_CLIENT_ID }} 
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }} 
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-      
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v1
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v2
 
-      - name: Terraform Init
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Terraform Init (no backend)
+        run: terraform init -backend=false
+
+      - name: Terraform Apply bootstrap
+        run: terraform apply -auto-approve \
+          -target=azurerm_resource_group.main \
+          -target=azurerm_storage_account.tfstate \
+          -target=azurerm_storage_container.tfstate
+
+  # Job 2: Main
+  main:
+    runs-on: ubuntu-latest
+    needs: bootstrap   # espera a que termine bootstrap
+    permissions:
+      id-token: write
+    defaults:
+      run:
+        working-directory: ./terraform
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v2
+
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Terraform Init (with backend)
         run: terraform init -reconfigure
-        
+
       - name: Terraform Plan
-        run: terraform plan
+        run: terraform plan -out=tfplan
 
       - name: Terraform Apply
-        run: terraform apply -auto-approve
+        run: terraform apply -auto-approve tfplan
