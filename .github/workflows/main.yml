@@ -19,7 +19,7 @@ jobs:
       id-token: write
     defaults:
       run:
-        working-directory: ./terraform
+        working-directory: ./terraform/bootstrap
     steps:
       - uses: actions/checkout@v4
       - uses: hashicorp/setup-terraform@v2
@@ -45,7 +45,7 @@ jobs:
       id-token: write
     defaults:
       run:
-        working-directory: ./terraform
+        working-directory: ./terraform/main
     steps:
       - uses: actions/checkout@v4
       - uses: hashicorp/setup-terraform@v2
