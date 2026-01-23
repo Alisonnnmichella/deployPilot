@@ -79,6 +79,14 @@ resource "azurerm_linux_web_app" "main" {
   }
 }
 
+# This creates the plan that the service use
+resource "azurerm_service_plan" "main" {
+  name                = "${var.application_name}-plan"
+  location            = data.azurerm_resource_group.main.location
+  resource_group_name = data.azurerm_resource_group.main.name
+  os_type             = "Linux"
+  sku_name            = "B1"
+}
 
 resource "azurerm_linux_web_app_slot" "staging" {
   name                = "staging"
