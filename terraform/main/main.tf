@@ -72,8 +72,11 @@ resource "azurerm_linux_web_app" "main" {
   https_only          = true
 
   site_config {
-    always_on        = true
-    linux_fx_version = "JAVA|8-jre8"
+    always_on = true
+  }
+
+  application_stack {
+    java_version = "8"
   }
 
   app_settings = {
@@ -91,8 +94,7 @@ resource "azurerm_linux_web_app" "main" {
 
 resource "azurerm_linux_web_app" "staging" {
   name                = "staging"
-  app_service_name    = azurerm_linux_web_app.main.name
   resource_group_name = data.azurerm_resource_group.main.name
   location            = data.azurerm_resource_group.main.location
-  app_service_plan_id = azurerm_service_plan.main.id
+  service_plan_id = azurerm_service_plan.main.id
 }
