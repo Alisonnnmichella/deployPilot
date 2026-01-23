@@ -53,16 +53,6 @@ resource "azurerm_mysql_flexible_server_firewall_rule" "main" {
   end_ip_address   = "0.0.0.0"
 }
 
-
-# This creates the plan that the service use
-resource "azurerm_service_plan" "main" {
-  name                = "${var.application_name}-plan"
-  location            = data.azurerm_resource_group.main.location
-  resource_group_name = data.azurerm_resource_group.main.name
-  os_type             = "Linux"
-  sku_name            = "B1"
-}
-
 resource "azurerm_linux_web_app" "main" {
   name                = var.application_name
   location            = data.azurerm_resource_group.main.location
@@ -71,8 +61,13 @@ resource "azurerm_linux_web_app" "main" {
   https_only          = true
 
   site_config {
-    always_on    = true
-    java_version = "8"
+    always_on = true
+  }
+
+  application_stack {
+    java_server         = "JAVA"
+    java_server_version = "8"
+    java_version        = "8"
   }
 
   app_settings = {
@@ -83,6 +78,7 @@ resource "azurerm_linux_web_app" "main" {
     "SPRING_DATASOURCE_PASSWORD"          = azurerm_mysql_flexible_server.main.administrator_password
   }
 }
+
 
 resource "azurerm_linux_web_app_slot" "staging" {
   name                = "staging"
@@ -92,15 +88,12 @@ resource "azurerm_linux_web_app_slot" "staging" {
   service_plan_id     = azurerm_service_plan.main.id
 
   site_config {
-    always_on    = true
-    java_version = "8"
+    always_on = true
   }
 
-  app_settings = {
-    "WEBSITES_ENABLE_APP_SERVICE_STORAGE" = "false"
-    "SPRING_PROFILES_ACTIVE"              = "mysql"
-    "SPRING_DATASOURCE_URL"               = "jdbc:mysql://${azurerm_mysql_flexible_server.main.fqdn}:3306/${azurerm_mysql_flexible_database.main.name}?useUnicode=true&characterEncoding=utf8&useSSL=true&useLegacyDatetimeCode=false&serverTimezone=UTC"
-    "SPRING_DATASOURCE_USERNAME"          = "${azurerm_mysql_flexible_server.main.administrator_login}@${azurerm_mysql_flexible_server.main.name}"
-    "SPRING_DATASOURCE_PASSWORD"          = azurerm_mysql_flexible_server.main.administrator_password
+  application_stack {
+    java_server         = "JAVA"
+    java_server_version = "8"
+    java_version        = "8"
   }
 }
