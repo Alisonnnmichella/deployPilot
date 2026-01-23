@@ -57,8 +57,11 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
+      - name: Clean local state 
+        run: rm -rf .terraform terraform.tfstate*
+
       - name: Terraform Init (with backend)
-        run: terraform init -reconfigure
+        run: terraform init -migrate-state
 
       - name: Terraform Plan
         run: terraform plan -out=tfplan
