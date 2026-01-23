@@ -36,7 +36,7 @@ resource "azurerm_mysql_flexible_server" "main" {
 
 # Base de datos en Flexible Server
 resource "azurerm_mysql_flexible_database" "main" {
-  name      = "${azurerm_resource_group.main.name}_mysql_db"
+  name      = "${data.azurerm_resource_group.main.name}_mysql_db"
   resource_group_name = data.azurerm_resource_group.main.name
   server_name         = azurerm_mysql_flexible_server.main.name
   charset   = "utf8"
