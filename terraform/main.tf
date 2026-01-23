@@ -120,3 +120,10 @@ resource "azurerm_storage_container" "tfstate" {
   storage_account_name  = azurerm_storage_account.tfstate.name
   container_access_type = "private"
 }
+
+resource "azurerm_app_service_slot" "staging" {
+  name                = "staging"
+  app_service_name    = azurerm_app_service.main.name
+  resource_group_name = azurerm_resource_group.main.name
+  location            = azurerm_resource_group.main.location
+}
