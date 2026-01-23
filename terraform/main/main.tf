@@ -1,5 +1,5 @@
-data "azurerm_resource_group" "main" { 
-  name = "pilot-tfstate-rg" 
+data "azurerm_resource_group" "main" {
+  name = var.resource_group
 }
 
 resource "random_password" "password" {
@@ -8,10 +8,19 @@ resource "random_password" "password" {
   override_special = "_%@"
 }
 
+data "terraform_remote_state" "bootstrap" {
+  backend = "azurerm"
+  config = {
+    resource_group_name  = "azurepilotdeploy"
+    storage_account_name = "pilotstateaccount"
+    container_name       = "tfstate"
+    key                  = "bootstrap.tfstate"
+  }
+}
 
 # This creates a MySQL server
 resource "azurerm_mysql_flexible_server" "main" {
-  name                = "${azurerm_resource_group.main.name}-mysql-flexible"
+  name                = "${data.azurerm_resource_group.main.name}-mysql-flexible"
   resource_group_name = data.azurerm_resource_group.main.name
   location            = data.azurerm_resource_group.main.location
 
