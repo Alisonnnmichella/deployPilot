@@ -64,11 +64,11 @@ resource "azurerm_service_plan" "main" {
 }
 
 # This creates the service definition
-resource "azurerm_app_service" "main" {
+resource "azurerm_linux_web_app" "main" {
   name                = var.application_name
   location            = data.azurerm_resource_group.main.location
   resource_group_name = data.azurerm_resource_group.main.name
-  app_service_plan_id = azurerm_service_plan.main.id
+  service_plan_id      = azurerm_service_plan.main.id
   https_only          = true
 
   site_config {
@@ -89,9 +89,9 @@ resource "azurerm_app_service" "main" {
 
 
 
-resource "azurerm_app_service_slot" "staging" {
+resource "azurerm_linux_web_app" "staging" {
   name                = "staging"
-  app_service_name    = azurerm_app_service.main.name
+  app_service_name    = azurerm_linux_web_app.main.name
   resource_group_name = data.azurerm_resource_group.main.name
   location            = data.azurerm_resource_group.main.location
   app_service_plan_id = azurerm_service_plan.main.id
