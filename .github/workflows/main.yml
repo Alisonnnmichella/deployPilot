@@ -33,12 +33,13 @@ jobs:
       
       - name: Check if storage account exists
         id: check_storage
-        run: 
+        run: |
           if az storage account show --name tfstate --resource-group azurepilotdeploy >/dev/null 2>&1; then
             echo "exists=true" >> $GITHUB_OUTPUT
           else
             echo "exists=false" >> $GITHUB_OUTPUT
           fi
+
     
 
       - name: Terraform Init (no backend)
