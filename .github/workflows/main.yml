@@ -30,18 +30,18 @@ jobs:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-      
+
+        env:
+          STATE_ACCOUNT_NAME: pilotstateaccount
+          STATE_RG_NAME: azurepilotdeploy            
       - name: Check if storage account exists
         id: check_storage
         run: |
-          if az storage account show --name tfstate --resource-group azurepilotdeploy >/dev/null 2>&1; then
+          if az storage account show --name $STATE_ACCOUNT_NAME --resource-group $STATE_RG_NAME >/dev/null 2>&1; then
             echo "exists=true" >> $GITHUB_OUTPUT
           else
             echo "exists=false" >> $GITHUB_OUTPUT
           fi
-
-    
-
       - name: Terraform Init (no backend)
         if: steps.check_storage.outputs.exists == 'false'
         run: terraform init -backend=false

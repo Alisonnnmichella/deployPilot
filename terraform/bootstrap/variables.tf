@@ -14,5 +14,11 @@ variable "location" {
   default     = "canadacentral"
 }
 
+variable "state_account_name" {
+  type    = string
+  default = "pilotstateaccount"
+}
+
+
 
 
