@@ -19,7 +19,10 @@ jobs:
       id-token: write
     defaults:
       run:
-        working-directory: ./terraform/bootstrap
+        working-directory: ./terraform/bootstrap  
+    env:
+      STATE_ACCOUNT_NAME: pilotstateaccount
+      STATE_RG_NAME: azurepilotdeploy      
     steps:
       - uses: actions/checkout@v4
       - uses: hashicorp/setup-terraform@v2
@@ -29,11 +32,7 @@ jobs:
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-
-        env:
-          STATE_ACCOUNT_NAME: pilotstateaccount
-          STATE_RG_NAME: azurepilotdeploy            
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}          
       - name: Check if storage account exists
         id: check_storage
         run: |
@@ -43,11 +42,11 @@ jobs:
             echo "exists=false" >> $GITHUB_OUTPUT
           fi
       - name: Terraform Init (no backend)
-        if: steps.check_storage.outputs.exists == 'false'
+        if: ${{ steps.check_storage.outputs.exists == 'false' }}
         run: terraform init -backend=false
 
       - name: Terraform Apply bootstrap
-        if: steps.check_storage.outputs.exists == 'false'
+        if: ${{ steps.check_storage.outputs.exists == 'false' }}
         run: terraform apply -auto-approve -target=azurerm_resource_group.main -target=azurerm_storage_account.tfstate -target=azurerm_storage_container.tfstate
 
   # Job 2: Main
