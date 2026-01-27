@@ -1,3 +1,7 @@
+<img width="1906" height="847" alt="image" src="https://github.com/user-attachments/assets/e515021e-c5b8-429d-a3a2-2a750b10d3e1" />
+
+
+
 # Spring PetClinic with GitHub Actions on Azure
 
 ## Deploying to Azure
