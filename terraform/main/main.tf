@@ -62,6 +62,7 @@ resource "azurerm_linux_web_app" "main" {
 
   site_config {
     always_on = true
+    app_command_line = "java -jar /home/site/wwwroot/app.jar"
 
     application_stack {
       java_server         = "JAVA"
@@ -71,7 +72,7 @@ resource "azurerm_linux_web_app" "main" {
   }
 
   app_settings = {
-    "WEBSITES_ENABLE_APP_SERVICE_STORAGE" = "false"
+    "WEBSITES_ENABLE_APP_SERVICE_STORAGE" = "true"
     "SPRING_PROFILES_ACTIVE"              = "mysql"
     "SPRING_DATASOURCE_URL"               = "jdbc:mysql://${azurerm_mysql_flexible_server.main.fqdn}:3306/${azurerm_mysql_flexible_database.main.name}?useUnicode=true&characterEncoding=utf8&useSSL=true&useLegacyDatetimeCode=false&serverTimezone=UTC"
     "SPRING_DATASOURCE_USERNAME"          = "${azurerm_mysql_flexible_server.main.administrator_login}@${azurerm_mysql_flexible_server.main.name}"
